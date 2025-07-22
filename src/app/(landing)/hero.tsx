@@ -1,31 +1,27 @@
-"use client";
+import Link from "next/link";
 
-import { AuroraText } from "@/components/magicui/aurora-text";
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
-import { SparklesText } from "@/components/magicui/sparkles-text";
-import { ShinyButton } from "@/components/magicui/shiny-button";
 import { WarpBackground } from "@/components/magicui/warp-background";
+import { Button } from "@/components/ui/button";
 
-export default function Hero() {
+export function Hero() {
   return (
-    <section className="relative flex min-h-[80vh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center">
+    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-24 text-center">
       <WarpBackground>
         <div className="max-w-3xl mx-auto flex flex-col gap-6">
-          <AuroraText className="text-5xl md:text-7xl font-extrabold tracking-tight">
-            Connect. Empower. Thrive.
-          </AuroraText>
-          <AnimatedGradientText className="text-2xl md:text-3xl font-semibold mt-2">
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">
+            Welcome to{" "}
+            <AnimatedGradientText colorFrom="var(--primary)">
+              ClubLinked
+            </AnimatedGradientText>
+          </h1>
+          <h3 className="text-xl md:text-2xl font-semibold">
             The Ultimate Platform for University Clubs & Students
-          </AnimatedGradientText>
-          <SparklesText className="text-lg md:text-xl text-muted-foreground mt-4">
-            Effortlessly manage clubs, supercharge onboarding, and unlock a
-            world of opportunities. Join a vibrant community where passion meets
-            possibility.
-          </SparklesText>
-          <div className="mt-8 flex justify-center">
-            <ShinyButton className="text-lg px-8 py-3">
-              <a href="#features">Get Started Now</a>
-            </ShinyButton>
+          </h3>
+          <div className="mt-4 flex justify-center">
+            <Link href="/auth" passHref>
+              <Button size="lg">Join the Club</Button>
+            </Link>
           </div>
         </div>
       </WarpBackground>
