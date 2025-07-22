@@ -81,7 +81,7 @@ export default function UniversityDetailPage({
             className="border border-[var(--border)] bg-[var(--card)] rounded-lg p-4"
           >
             <a
-              href={`/university/${params.slug}/club/${club.id}`}
+              href={`/universities/${params.slug}/club/${club.id}`}
               className="font-semibold text-[var(--primary)] hover:underline"
             >
               {club.name}
