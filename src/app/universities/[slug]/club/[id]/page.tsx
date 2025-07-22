@@ -55,12 +55,8 @@ const mockClubs = {
   },
 };
 
-export default function ClubDetailPage({
-  params,
-}: {
-  params: { clubId: string };
-}) {
-  const club = mockClubs[params.clubId as keyof typeof mockClubs];
+export default function ClubDetailPage({ params }: { params: { slug: string; id: string } }) {
+  const club = mockClubs[params.id as keyof typeof mockClubs];
   if (!club) {
     return <div>Club not found.</div>;
   }

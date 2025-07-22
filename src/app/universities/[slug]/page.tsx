@@ -63,9 +63,9 @@ const mockUniversities = {
 export default function UniversityDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: { slug: string };
 }) {
-  const uni = mockUniversities[params.id as keyof typeof mockUniversities];
+  const uni = mockUniversities[params.slug as keyof typeof mockUniversities];
   if (!uni) {
     return <div>University not found.</div>;
   }
@@ -81,7 +81,7 @@ export default function UniversityDetailPage({
             className="border border-[var(--border)] bg-[var(--card)] rounded-lg p-4"
           >
             <a
-              href={`/university/${params.id}/club/${club.id}`}
+              href={`/university/${params.slug}/club/${club.id}`}
               className="font-semibold text-[var(--primary)] hover:underline"
             >
               {club.name}
