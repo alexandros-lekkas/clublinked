@@ -12,16 +12,10 @@ const animationProps = {
     repeat: Infinity,
     repeatType: "loop",
     repeatDelay: 1,
-    type: "spring",
+    type: "spring" as const,
     stiffness: 20,
     damping: 15,
     mass: 2,
-    scale: {
-      type: "spring",
-      stiffness: 200,
-      damping: 5,
-      mass: 0.5,
-    },
   },
 };
 
