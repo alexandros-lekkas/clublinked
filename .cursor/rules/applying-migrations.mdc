@@ -1,0 +1,135 @@
+---
+description: Useful guide for when we make any changes to the supabase database schema.
+alwaysApply: false
+---
+
+# Supabase Migration SOP
+
+## **Overview**
+
+This SOP explains how admins should manage Supabase schema changes using **migrations**.
+
+Admins make changes directly in the **Supabase Web UI (prod)**, then generate migrations via the **Supabase CLI (local dev dependency)** so developers can run a safe local copy without real data.
+
+# **Guide**
+
+## **One-Time Setup**
+
+### **Install Tools**
+
+Install Supabase CLI _locally inside the project_:
+
+```bash
+pnpm install supabase --save-dev
+```
+
+Install Docker Desktop (from https://www.docker.com/) and ensure it is running.
+
+> Note: We no longer use npm install -g supabase. Always run CLI commands using npx supabase.
+
+---
+
+### **Init**
+
+In the root of the project, run:
+
+```bash
+pnpx supabase init
+```
+
+This creates a `supabase/` folder (if it does not already exist).
+
+### Login to Supabase
+
+You may be unauthorized on your device, make sure to login:
+
+```jsx
+pnpx supabase login
+```
+
+### **Link CLI to Project**
+
+Find your Supabase **project ref** in the dashboard URL and link the CLI:
+
+```bash
+pnpx supabase link --project-ref <YOUR_PROD_PROJECT_REF>
+```
+
+This tells the CLI: “when I run `db diff`, compare against this prod project.”
+
+## **Capture Current Schema → Migrations**
+
+_Have Docker Desktop running before performing any of these actions. You will get an error if it is not running!_
+
+If the project already has tables created in the Supabase UI and no migrations have been generated yet, capture the entire schema once:
+
+```bash
+pnpx supabase db pull
+```
+
+Useful to know here:
+
+```jsx
+pnpx supabase stop --all --no-backup || true
+```
+
+This creates a migration file under `supabase/migrations/`.
+
+Commit it:
+
+```bash
+git add supabase/migrations
+git commit -m "chore(db): init schema from prod"
+```
+
+This becomes your baseline.
+
+## **Making Schema Changes (Day-to-Day Workflow for Admins)**
+
+1. Make changes directly in the **Supabase Web UI (prod)**.
+   - Create / edit tables
+   - Add columns
+   - Edit RLS
+   - Add enums / triggers / functions, etc.
+2. When finished with a meaningful batch of changes, generate a migration:
+
+```bash
+pnpx supabase db diff -f <descriptive-name>
+```
+
+Examples:
+
+```bash
+pnpx supabase db diff -f add-campaign-fields
+pnpx supabase db diff -f update-task-status-enum
+```
+
+1. Commit and push:
+
+```bash
+git add supabase/migrations
+git commit -m "feat(db): <description>"
+git push
+```
+
+Developers can now reset their local DBs and get the updated schema.
+
+## **Seeding Fake Data**
+
+Create or update `supabase/seed.sql` with fake data only (never real production info).
+
+Example:
+
+```sql
+insert into profiles (id, email, role) values
+  (gen_random_uuid(), 'dev1@example.com', 'creator'),
+  (gen_random_uuid(), 'dev2@example.com', 'client');
+```
+
+Commit any updates.
+
+Developers will load this via:
+
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/seed.sql
+```

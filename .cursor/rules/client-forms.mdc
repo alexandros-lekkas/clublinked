@@ -1,0 +1,436 @@
+---
+description: Client-side form patterns including Zod validation, React Hook Form integration, state management, UI components, and error handling.
+alwaysApply: false
+---
+
+# Client Forms
+
+## Overview
+
+Forms in our application are client components that use React Hook Form for state management and Zod for validation. They call server actions for data mutations and provide a great user experience with loading states and error handling.
+
+## File Structure
+
+### Simple Forms
+
+For simple forms (single page, basic validation):
+
+```
+example/
+    page.tsx         // Client component with inline form and schema
+    actions.ts       // Server actions (database logic)
+```
+
+### Complex Forms
+
+For complex forms (reusable validation, multiple components):
+
+```
+example/
+    page.tsx         // Server component (data fetching)
+    actions.ts       // Server actions
+    schemas.ts       // Shared Zod schemas
+    _components/
+        create-form-sheet.tsx  // Client form component
+        edit-form-dialog.tsx   // Client form component
+```
+
+## Form Validation with Zod
+
+### Inline Schema (Simple Forms)
+
+For forms used in a single place:
+
+```tsx
+// page.tsx
+"use client";
+
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
+```
+
+### Separate Schema File (Reusable Forms)
+
+For schemas used across multiple components:
+
+```tsx
+// schemas.ts
+import { z } from "zod";
+
+export const brandSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  slug: z
+    .string()
+    .min(2, "Slug must be at least 2 characters")
+    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens only"),
+  status: z.enum(["active", "inactive"]),
+});
+
+export type BrandFormData = z.infer<typeof brandSchema>;
+```
+
+### Validation Best Practices
+
+- Always provide user-friendly error messages
+- Use chained validations for complex rules (`.regex()`, `.refine()`, etc.)
+- Mark optional fields explicitly with `.optional()` or `.nullable()`
+- Export TypeScript types using `z.infer<typeof schema>`
+- Keep validation logic in sync between client and server
+
+## Standard Form Pattern
+
+### Required Directives
+
+All form components must use:
+
+```tsx
+"use client";
+```
+
+### Basic Form Setup
+
+```tsx
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+
+import { myServerAction } from "../actions";
+import { mySchema, type MyFormData } from "../schemas";
+
+export function MyForm() {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm<MyFormData>({
+    resolver: zodResolver(mySchema),
+  });
+
+  async function onSubmit(data: MyFormData) {
+    setIsSubmitting(true);
+    try {
+      await myServerAction(data);
+      toast.success("Success message");
+      router.refresh(); // Refresh server components
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Something went wrong";
+      toast.error(message);
+      setError("root", { message });
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      {/* Form fields */}
+    </form>
+  );
+}
+```
+
+## Form State Management
+
+### Loading State
+
+Use `isSubmitting` to disable inputs and show loading UI:
+
+```tsx
+const [isSubmitting, setIsSubmitting] = useState(false);
+
+// In form fields
+<Input
+  {...register("name")}
+  disabled={isSubmitting}
+/>
+
+// In submit button
+<Button type="submit" disabled={isSubmitting}>
+  {isSubmitting ? "Saving..." : "Save"}
+</Button>
+```
+
+### Error Handling
+
+Always wrap server action calls in try-catch:
+
+```tsx
+async function onSubmit(data: FormData) {
+  setIsSubmitting(true);
+  try {
+    await myServerAction(data);
+    toast.success("Success!");
+    router.refresh();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Something went wrong";
+    toast.error(message);
+    setError("root", { message });
+    setIsSubmitting(false); // Re-enable form on error
+  }
+}
+```
+
+### User Feedback
+
+Use `toast` for success/error notifications:
+
+```tsx
+import { toast } from "sonner";
+
+// Success
+toast.success("Brand created successfully!");
+
+// Error
+toast.error("Failed to create brand");
+
+// With custom duration
+toast.success("Saved!", { duration: 2000 });
+```
+
+## Modal/Sheet Forms
+
+For forms in sheets or dialogs, add state management for open/close:
+
+```tsx
+import { useState } from "react";
+
+export function CreateFormSheet() {
+  const [open, setOpen] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      reset(); // Reset form when closed
+    }
+  };
+
+  async function onSubmit(data: FormData) {
+    setIsSubmitting(true);
+    try {
+      await myServerAction(data);
+      toast.success("Success!");
+      setOpen(false); // Close on success
+      router.refresh();
+    } catch (error) {
+      // Handle error...
+      setIsSubmitting(false); // Keep open on error
+    }
+  }
+
+  return (
+    <Sheet open={open} onOpenChange={handleOpenChange}>
+      <SheetTrigger asChild>
+        <Button>Create</Button>
+      </SheetTrigger>
+      <SheetContent>
+        <form onSubmit={handleSubmit(onSubmit)}>{/* Form fields */}</form>
+      </SheetContent>
+    </Sheet>
+  );
+}
+```
+
+## Form UI Components
+
+### Field Structure
+
+Use our custom Field components for consistent styling and accessibility:
+
+```tsx
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+
+<FieldGroup>
+  <Field data-invalid={!!errors.name && !isSubmitting}>
+    <FieldLabel htmlFor="name">Name</FieldLabel>
+    <Input
+      id="name"
+      type="text"
+      placeholder="Enter name"
+      aria-invalid={!!errors.name && !isSubmitting}
+      {...register("name")}
+    />
+    <FieldDescription>This will be displayed publicly</FieldDescription>
+    {!isSubmitting && <FieldError errors={errors.name ? [errors.name] : undefined} />}
+  </Field>
+
+  <Field data-invalid={!!errors.email && !isSubmitting}>
+    <FieldLabel htmlFor="email">Email</FieldLabel>
+    <Input
+      id="email"
+      type="email"
+      placeholder="Enter email"
+      aria-invalid={!!errors.email && !isSubmitting}
+      {...register("email")}
+    />
+    {!isSubmitting && <FieldError errors={errors.email ? [errors.email] : undefined} />}
+  </Field>
+</FieldGroup>
+```
+
+### Key Points
+
+- **Wrap in FieldGroup**: Use `<FieldGroup>` to wrap all form fields
+- **Data Attributes**: Add `data-invalid` for styling invalid fields
+- **Accessibility**: Always include `aria-invalid` and `htmlFor` attributes
+- **Conditional Errors**: Only show errors when NOT submitting
+- **Helper Text**: Use `FieldDescription` for additional context
+
+### Select Components
+
+For select inputs with React Hook Form:
+
+```tsx
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const { watch, setValue } = useForm<FormData>({
+  resolver: zodResolver(schema),
+});
+
+<Field data-invalid={!!errors.status && !isSubmitting}>
+  <FieldLabel htmlFor="status">Status</FieldLabel>
+  <Select
+    value={watch("status")}
+    onValueChange={(value) => setValue("status", value as "active" | "inactive")}
+  >
+    <SelectTrigger id="status">
+      <SelectValue placeholder="Select status" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="active">Active</SelectItem>
+      <SelectItem value="inactive">Inactive</SelectItem>
+    </SelectContent>
+  </Select>
+  {!isSubmitting && <FieldError errors={errors.status ? [errors.status] : undefined} />}
+</Field>
+```
+
+### Submit Button
+
+Always show loading state on submit button:
+
+```tsx
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+
+<Button type="submit" disabled={isSubmitting}>
+  {isSubmitting ? (
+    <>
+      <Spinner />
+      Saving...
+    </>
+  ) : (
+    "Save"
+  )}
+</Button>
+```
+
+## Data Fetching in Server Components
+
+Pages should be server components that fetch data and pass it to client components:
+
+```tsx
+// page.tsx (Server Component - no "use client")
+import { getCurrentAgency } from "@/lib/utils/agency";
+
+import { MyForm } from "./_components/my-form";
+import { getInitialData } from "./actions";
+
+export default async function MyPage() {
+  const agency = await getCurrentAgency();
+  const data = await getInitialData();
+
+  return (
+    <div>
+      <h1>My Page</h1>
+      <MyForm initialData={data} agency={agency} />
+    </div>
+  );
+}
+```
+
+## Router Interactions
+
+### After Mutations
+
+- **Same Page**: Use `router.refresh()` to refresh server components
+- **Different Page**: Use `router.push("/path")` to navigate
+- **Both**: Can use both if needed (navigate then refresh)
+
+```tsx
+import { useRouter } from "next/navigation";
+
+const router = useRouter();
+
+// Refresh current page
+router.refresh();
+
+// Navigate to different page
+router.push("/admin/brands");
+
+// Navigate and refresh
+router.push("/admin/brands");
+router.refresh();
+```
+
+### Important Notes
+
+- `revalidatePath()` in server actions handles most cache invalidation
+- `router.refresh()` forces a re-fetch of server component data
+- Always call after successful mutations to show updated data
+
+## Common Patterns Summary
+
+### ✅ DO
+
+- Use Zod for all form validation
+- Mark all forms with `"use client"`
+- Show loading states during submission
+- Provide user feedback with toasts
+- Hide field errors during submission (`{!isSubmitting && <FieldError />}`)
+- Reset form state in modals/sheets when closed
+- Use `router.refresh()` after mutations
+- Wrap form fields in `<FieldGroup>`
+- Add `aria-invalid` and `htmlFor` for accessibility
+- Disable inputs during submission
+- Handle errors gracefully with try-catch
+
+### ❌ DON'T
+
+- Don't show errors during form submission
+- Don't forget to reset form state in modals/sheets
+- Don't forget `"use client"` directive
+- Don't forget to re-enable form on error (`setIsSubmitting(false)`)
+- Don't forget to close modal/sheet on success
+- Don't forget to call `router.refresh()` after mutations
+- Don't use controlled inputs without proper state management
+- Don't forget accessibility attributes

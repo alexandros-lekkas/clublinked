@@ -1,0 +1,51 @@
+---
+description: Guidelines for identifying refactoring opportunities and reducing code duplication across the codebase.
+alwaysApply: false
+---
+
+# Refactoring Guidelines
+
+## When to Consider Refactoring
+
+After building large features or making significant changes, look for opportunities to reduce code duplication and improve maintainability.
+
+## Common Refactoring Opportunities
+
+### Repeated UI Patterns
+
+- Multiple tables with similar filtering logic → Standardized filter component
+- Similar form patterns across pages → Shared form components
+- Duplicate modal/dialog implementations → Reusable dialog components
+
+### Shared Business Logic
+
+- Repeated data transformations → Utility functions
+- Similar API interaction patterns → Shared hooks or utilities
+- Duplicate validation logic → Shared schemas
+
+### Repeated Styling
+
+- Similar layout patterns → Layout components
+- Repeated Tailwind class combinations → Component variants or utility classes
+
+## Refactoring Process
+
+1. **Identify the Pattern**: Notice when you've implemented similar functionality 2-3+ times
+2. **Assess the Value**: Determine if abstraction adds value or just complexity
+3. **Propose to User**: Before significant refactoring, briefly describe the opportunity to the user
+4. **Implement if Approved**: Create the shared component/utility and migrate existing code
+
+## When NOT to Refactor
+
+- Components that only appear to be similar but have different requirements
+- One-off implementations (wait until there's a second or third instance)
+- When it adds complexity without clear maintainability benefits
+- During time-sensitive feature work (note it for later instead)
+
+## Example
+
+```markdown
+I notice we now have filter components in `/admin/users`, `/admin/campaigns`,
+and `/admin/brands` that follow the same pattern. Would you like me to create
+a shared `<FilterGroup>` component to reduce duplication and ensure consistency?
+```

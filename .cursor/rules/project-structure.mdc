@@ -1,0 +1,106 @@
+---
+alwaysApply: true
+---
+
+# Project Structure
+
+## Naming Conventions
+
+Always use kebab-case for file names:
+
+```
+kebab-case.tsx
+```
+
+## Framework
+
+We are using Next.js 16 (App Router) and Next.js conventions.
+
+## Example Structure
+
+```
+app/
+    auth/
+    dashboard/
+        page.tsx
+        layout.tsx
+```
+
+## Server-Side Principles
+
+We follow server-side rendering principles throughout the application.
+
+When building forms and actions, we use `actions.ts` files for server-side logic.
+
+### Basic Page Structure
+
+For a simple page in the app router:
+
+```
+example/
+    page.tsx // contains the page, data is fetched using the actions.ts file
+    actions.ts // database interactions live here (server-side)
+```
+
+### Complex Page Structure
+
+For more complex pages with tables or multiple components:
+
+```
+example/
+    page.tsx
+    actions.ts
+    _components/ // underscore prefix indicates private components
+        table/
+            index.tsx // main table component
+            columns.tsx // column definitions
+            data-table.tsx // data table logic
+        other-component.tsx
+```
+
+Components can be organized into sub-folders as needed. Use the `_components/` folder (with underscore prefix) for page-specific components that shouldn't be routable.
+
+### Using index.tsx
+
+Use `index.tsx` ONLY as the main component file when a component is complex enough to be split into multiple files.
+
+**Correct usage** - Complex component split across multiple files:
+
+```
+table/
+    index.tsx // THE ACTUAL TABLE COMPONENT - imports and uses columns.tsx, data-table.tsx, etc.
+    columns.tsx // helper file used by index.tsx
+    data-table.tsx // helper file used by index.tsx
+    types.ts // types used by the component
+```
+
+This allows you to import as `table` instead of `table/table`:
+
+```tsx
+import { DataTable } from "@/components/table";
+
+// imports from index.tsx
+```
+
+The `index.tsx` contains the actual component logic:
+
+```tsx
+// index.tsx
+import { columns } from "./columns";
+import { DataTable } from "./data-table";
+
+export function Table() {
+  // main component logic here
+  return <DataTable columns={columns} {...props} />;
+}
+```
+
+**Incorrect usage** - Don't use index.tsx as a re-export bundler:
+
+```tsx
+// index.tsx - DON'T DO THIS
+export * from "./columns";
+export * from "./data-table";
+```
+
+If users need to import individual pieces, they should directly import from those files. The index.tsx should be the cohesive component that brings everything together.
