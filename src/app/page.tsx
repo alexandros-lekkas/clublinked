@@ -1,5 +1,5 @@
 import Image from "next/image";
-import profilePic from "./Profile_picture.png";
+import profilePic from "../../public/logo.png";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
