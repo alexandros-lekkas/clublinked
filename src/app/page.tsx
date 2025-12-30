@@ -1,12 +1,12 @@
 import Image from "next/image";
 import profilePic from "./Profile_picture.png";
-import { Button } from "../components/ui/button";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
     <div className="bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-black">
       <main className="max-w-3xl mx-auto px-6 py-8">
-  <div className="grid grid-cols-1 gap-12 items-start text-left">
+        <div className="grid grid-cols-1 gap-12 items-start text-left">
           <section className="space-y-6">
             <div className="flex justify-start mb-4">
               <div className="w-40 h-28 overflow-hidden">
@@ -52,10 +52,16 @@ export default function Home() {
             <div className="flex items-start justify-between gap-6">
               <div>
                 <h4 className="text-sm font-semibold">ClubLinked</h4>
-                <p className="text-sm text-muted-foreground mt-1">Helping clubs connect and grow — built with care.</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Helping clubs connect and grow — built with care.
+                </p>
                 <div className="flex gap-4 mt-4">
-                  <a href="#features" className="text-sm hover:underline">Features</a>
-                  <a href="#pricing" className="text-sm hover:underline">Pricing</a>
+                  <a href="#features" className="text-sm hover:underline">
+                    Features
+                  </a>
+                  <a href="#pricing" className="text-sm hover:underline">
+                    Pricing
+                  </a>
                 </div>
               </div>
 
