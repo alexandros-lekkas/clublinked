@@ -43,7 +43,7 @@ export default function Home() {
               asChild
               className="h-16 w-full rounded-full bg-[#1d56d8] text-2xl font-semibold text-white shadow-lg shadow-black/20 hover:bg-[#1a4fc7]"
             >
-              <Link href="/user/userinfo">Get Started</Link>
+              <Link href="/user/signup">Get Started</Link>
             </Button>
           </div>
         </section>

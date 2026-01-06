@@ -1,14 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
-
-const categories = [
-  "Consulting",
-  "Sports",
-  "Finance",
-  "Engineering",
-  "Volunteering",
-];
+import * as React from "react";
+import { CategoryCombobox } from './combobox';
 
 const clubs = [
   {
@@ -44,6 +40,12 @@ const clubs = [
 ];
 
 export default function Clubsearch() {
+  const [selectedCategory, setSelectedCategory] = React.useState("all");
+
+  const filteredClubs = selectedCategory === "all" 
+    ? clubs 
+    : clubs.filter(club => club.tag === selectedCategory);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0E4AE6] via-[#0B78D7] to-[#16C6C1]">
       <main className="mx-auto w-full max-w-md px-5 pb-10 pt-8">
@@ -78,20 +80,16 @@ export default function Clubsearch() {
         </div>
 
         {/* Categories */}
-        <div className="mt-5 flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
-          {categories.map((c) => (
-            <button
-              key={c}
-              className="shrink-0 rounded-full bg-white/80 px-5 py-2 text-sm font-medium text-slate-800 shadow-sm backdrop-blur hover:bg-white"
-            >
-              {c}
-            </button>
-          ))}
+        <div className="mt-5">
+          <CategoryCombobox 
+            selectedCategory={selectedCategory} 
+            setSelectedCategory={setSelectedCategory} 
+          />
         </div>
 
         {/* Club cards */}
         <section className="mt-6 grid grid-cols-2 gap-4">
-          {clubs.map((club) => (
+          {filteredClubs.map((club) => (
             <Card
               key={club.name}
               className="rounded-2xl border-0 bg-white p-4 shadow-sm"

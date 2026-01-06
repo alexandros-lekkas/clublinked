@@ -16,54 +16,34 @@ export function Infobox() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Sign up for your account</CardTitle>
+        <CardTitle className="mb-2">Make your Club an official member of Clublinked!</CardTitle>
         <CardDescription>
-          Fill out your student details to start looking for clubs
+          Fill out your club details to get started
         </CardDescription>
-        <CardAction>
-          <Button variant="link">Login</Button>
-        </CardAction>
       </CardHeader>
       <CardContent>
         <form>
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
-              <Label htmlFor="firstname">First Name</Label>
+              <Label htmlFor="clubname">Club Name</Label>
               <Input
-                id="firstname"
+                id="clubname"
                 type="text"
-                placeholder="John"
-                required
-              />
-            </div>
-            </div>
-            <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <Label htmlFor="lastname">Last Name</Label>
-              <Input
-                id="lastname"
-                type="text"
-                placeholder="Doe"
+                placeholder="Club Name"
                 required
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="major">Major</Label>
+              <Label htmlFor="members">Current amount of registered members</Label>
               <Input
-                id="major"
+                id="members"
                 type="text"
-                placeholder="e.g. Computer Science"
+                placeholder="e.g. 10"
                 required
               />
             </div>
             <div className="grid gap-2">
-              <Label>Year</Label>
+              <Label>Club Type</Label>
               <ComboboxDemo />
             </div>
           </div>
@@ -71,7 +51,7 @@ export function Infobox() {
       </CardContent>
       <CardFooter className="flex-col gap-2">
         <Button type="submit" className="w-full">
-          Sign Up
+          Create
         </Button>
       </CardFooter>
     </Card>

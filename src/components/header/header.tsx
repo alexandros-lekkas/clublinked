@@ -31,7 +31,7 @@ export default function Header() {
 
         {/* CTA */}
         <Button asChild size="sm">
-          <Link href="/get-started">Get Started</Link>
+          <Link href="/user/signup">Get Started</Link>
         </Button>
       </div>
     </header>
